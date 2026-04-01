@@ -96,30 +96,30 @@ Content:
 - Key concepts: tools, commands, permissions, sessions, memory
 
 ### commands-reference.md
-- All 103 commands grouped by category:
-  - **Git:** /commit, /diff, /review, etc.
-  - **Config:** /config, /settings, /permissions, etc.
+- All public commands grouped by category (exclude INTERNAL_ONLY_COMMANDS like /commit)
+- Mark feature-gated commands (e.g., /voice requires VOICE_MODE, /brief requires KAIROS) — note they may not be available in all builds
+- Categories derived from actual commands.ts registry, not assumed:
+  - **Git:** /diff, /review, etc.
+  - **Config:** /config, /permissions, etc.
   - **Memory:** /memory, /compact, etc.
-  - **Tasks:** /tasks, /todo, etc.
+  - **Tasks:** /tasks, etc.
   - **Session:** /login, /logout, /resume, /clear, etc.
-  - **Debug:** /doctor, /verbose, /debug, etc.
-  - **Mode:** /vim, /plan, /voice, /brief, etc.
-- Each entry: name, aliases, brief description, flags/args
+  - **Diagnostics:** /doctor, etc.
+  - **Mode:** /vim, /plan, etc.
+- Each entry: name, aliases, brief description, flags/args, feature flag gate (if any)
+- Implementation note: verify each command exists and is public before documenting
 
 ### configuration.md
-- Configuration sources in priority order:
-  1. CLI arguments
-  2. Session settings
-  3. Project CLAUDE.md
-  4. User CLAUDE.md (~/.claude/CLAUDE.md)
-  5. settings.json (local, project, user)
-  6. MDM (managed device management)
-  7. Environment variables
+- Settings merge order (per src/utils/settings/): userSettings → projectSettings → localSettings → flagSettings → policySettings (later sources override earlier)
+- CLAUDE.md files handled separately from settings.json — document both systems and how they interact
+- Environment variables are special-case inputs, not a general config layer
+- MDM (managed device management) as an enterprise config source
 - Key settings and what they control
-- How overrides work
+- How overrides work — clarify the actual merge behavior
 
 ### permissions.md
-- Permission modes: default, plan, bypassPermissions, dontAsk, acceptEdits, auto
+- Permission modes: default, plan, bypassPermissions, dontAsk, acceptEdits
+- Note: `auto` mode exists only when TRANSCRIPT_CLASSIFIER feature flag is enabled (internal builds only) — document conditionally or omit for public audience
 - How to set permission mode (CLI flag, settings, per-command)
 - Permission rules: source types, allow/deny/ask behaviors
 - Tool-specific permissions
@@ -175,7 +175,7 @@ Each doc follows a consistent template:
 - Command lifecycle: parse → validate → execute → render
 
 ### state-management.md
-- `AppState.tsx` (22.9K): Central store
+- `src/state/AppState.tsx` (22.9K): Central store
 - State shape: messages, permissions, model, settings, suggestions
 - `useAppState` hook with Object.is memoization
 - Providers: AppStateProvider, MailboxProvider, VoiceProvider
